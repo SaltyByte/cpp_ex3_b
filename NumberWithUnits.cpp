@@ -8,7 +8,16 @@
 
 using namespace std;
 
+
 namespace ariel {
+    NumberWithUnits::NumberWithUnits(double num, const std::string &str) {
+        if (!(validUnits.find(str) != validUnits.end())) {
+            throw std::runtime_error("Can not find the unit requested");
+        }
+        num_ = num;
+        str_ = str;
+    }
+
     double getUnitSize(const string &unitLeft, const string &unitRight) {
         double retSize = 1;
         string unit = unitLeft;
@@ -81,116 +90,116 @@ namespace ariel {
         return is;
     }
 
-    NumberWithUnits operator-(const NumberWithUnits &unit1, const NumberWithUnits &unit2) {
-        double sizeOfUnit = getUnitSize(unit1.str_, unit2.str_);
+    NumberWithUnits NumberWithUnits::operator-(const NumberWithUnits &unit) {
+        double sizeOfUnit = getUnitSize(this->str_, unit.str_);
         if (sizeOfUnit == -1) {
             throw runtime_error("Wrong type of units, cant operate");
         }
-        return NumberWithUnits(unit1.num_ - unit2.num_ * sizeOfUnit, unit1.str_);
+        return NumberWithUnits(this->num_ - unit.num_ * sizeOfUnit, this->str_);
     }
 
-    NumberWithUnits operator-(const NumberWithUnits &unit) {
-        return NumberWithUnits(-unit.num_, unit.str_);
+    NumberWithUnits NumberWithUnits::operator-() {
+        return NumberWithUnits(-this->num_, this->str_);
     }
 
-    NumberWithUnits operator--(NumberWithUnits &unit) {
-        unit.num_--;
-        return unit;
+    NumberWithUnits &NumberWithUnits::operator--() {
+        this->num_--;
+        return *this;
     }
 
-    NumberWithUnits operator--(NumberWithUnits &unit, int) {
-        --unit.num_;
-        return unit;
+    NumberWithUnits NumberWithUnits::operator--(int) {
+        --this->num_;
+        return *this;
     }
 
-    NumberWithUnits operator+(const NumberWithUnits &unit1, const NumberWithUnits &unit2) {
-        double sizeOfUnit = getUnitSize(unit1.str_, unit2.str_);
+    NumberWithUnits NumberWithUnits::operator+(const NumberWithUnits &unit) {
+        double sizeOfUnit = getUnitSize(this->str_, unit.str_);
         if (sizeOfUnit == -1) {
             throw runtime_error("Wrong type of units, cant operate");
         }
-        return NumberWithUnits(unit1.num_ + unit2.num_ * sizeOfUnit, unit1.str_);
+        return NumberWithUnits(this->num_ + unit.num_ * sizeOfUnit, this->str_);
     }
 
-    NumberWithUnits operator+(const NumberWithUnits &unit) {
-        return NumberWithUnits(+unit.num_, unit.str_);
+    NumberWithUnits NumberWithUnits::operator+() {
+        return NumberWithUnits(+this->num_, this->str_);
     }
 
-    NumberWithUnits operator++(NumberWithUnits &unit) {
-        unit.num_++;
-        return unit;
+    NumberWithUnits &NumberWithUnits::operator++() {
+        this->num_++;
+        return *this;
     }
 
-    NumberWithUnits operator++(NumberWithUnits &unit, int) {
-        ++unit.num_;
-        return unit;
+    NumberWithUnits NumberWithUnits::operator++(int) {
+        ++this->num_;
+        return *this;
     }
 
-    NumberWithUnits operator*(const NumberWithUnits &unit, double val) {
-        return NumberWithUnits(unit.num_ * val, unit.str_);
+    NumberWithUnits NumberWithUnits::operator*(double val) {
+        return NumberWithUnits(this->num_ * val, this->str_);
     }
 
     NumberWithUnits operator*(double val, const NumberWithUnits &unit) {
         return NumberWithUnits(val * unit.num_, unit.str_);
     }
 
-    NumberWithUnits operator+=(NumberWithUnits &unit1, const NumberWithUnits &unit2) {
-        return unit1 = unit1 + unit2;
+    NumberWithUnits& NumberWithUnits::operator+=(const NumberWithUnits &unit) {
+        *this = *this + unit;
+        return *this;
     }
 
-    NumberWithUnits operator-=(NumberWithUnits &unit1, const NumberWithUnits &unit2) {
-        return unit1 = unit1 - unit2;
+    NumberWithUnits& NumberWithUnits::operator-=(const NumberWithUnits &unit) {
+        *this = *this - unit;
+        return *this;
     }
 
-    bool operator==(const NumberWithUnits &unit1, const NumberWithUnits &unit2) {
-        double sizeOfUnit = getUnitSize(unit1.str_, unit2.str_);
+    bool NumberWithUnits::operator==(const NumberWithUnits &unit) const{
+        double sizeOfUnit = getUnitSize(this->str_, unit.str_);
         if (sizeOfUnit == -1) {
             throw runtime_error("Wrong type of units, cant operate");
         }
-
-        double temp = sizeOfUnit * unit2.num_;
-        return temp == unit1.num_;
-
+        double temp = sizeOfUnit * unit.num_;
+        return temp == this->num_;
     }
 
-    bool operator!=(const NumberWithUnits &unit1, const NumberWithUnits &unit2) {
-        return !(operator==(unit1, unit2));
+    bool NumberWithUnits::operator!=(const NumberWithUnits &unit) const {
+        return !(operator==(unit));
     }
 
-    bool operator<(const NumberWithUnits &unit1, const NumberWithUnits &unit2) {
-        double sizeOfUnit = getUnitSize(unit1.str_, unit2.str_);
+    bool NumberWithUnits::operator<(const NumberWithUnits &unit) const {
+        double sizeOfUnit = getUnitSize(this->str_, unit.str_);
         if (sizeOfUnit == -1) {
             throw runtime_error("Wrong type of units, cant operate");
         }
-        double temp = sizeOfUnit * unit2.num_;
-        return unit1.num_ < temp;
+        double temp = sizeOfUnit * unit.num_;
+        return this->num_ < temp;
 
     }
 
-    bool operator>(const NumberWithUnits &unit1, const NumberWithUnits &unit2) {
-        double sizeOfUnit = getUnitSize(unit1.str_, unit2.str_);
+    bool NumberWithUnits::operator>(const NumberWithUnits &unit) const {
+        double sizeOfUnit = getUnitSize(this->str_, unit.str_);
         if (sizeOfUnit == -1) {
             throw runtime_error("Wrong type of units, cant operate");
         }
-        double temp = sizeOfUnit * unit2.num_;
-        return unit1.num_ > temp;
+        double temp = sizeOfUnit * unit.num_;
+        return this->num_ > temp;
 
     }
 
-    bool operator<=(const NumberWithUnits &unit1, const NumberWithUnits &unit2) {
-        double sizeOfUnit = getUnitSize(unit1.str_, unit2.str_);
+    bool NumberWithUnits::operator<=(const NumberWithUnits &unit) const {
+        double sizeOfUnit = getUnitSize(this->str_, unit.str_);
         if (sizeOfUnit == -1) {
             throw runtime_error("Wrong type of units, cant operate");
         }
-        double temp = sizeOfUnit * unit2.num_;
-        return unit1.num_ <= temp;
+        double temp = sizeOfUnit * unit.num_;
+        return this->num_ <= temp;
     }
 
-    bool operator>=(const NumberWithUnits &unit1, const NumberWithUnits &unit2) {
-        double sizeOfUnit = getUnitSize(unit1.str_, unit2.str_);
+    bool NumberWithUnits::operator>=(const NumberWithUnits &unit) const {
+        double sizeOfUnit = getUnitSize(this->str_, unit.str_);
         if (sizeOfUnit == -1) {
             throw runtime_error("Wrong type of units, cant operate");
         }
-        double temp = sizeOfUnit * unit2.num_;
-        return unit1.num_ >= temp;
+        double temp = sizeOfUnit * unit.num_;
+        return this->num_ >= temp;
     }
 }

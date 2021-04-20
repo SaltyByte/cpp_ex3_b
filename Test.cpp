@@ -89,6 +89,7 @@ TEST_CASE("Testing first row") {
     CHECK((+c) == NumberWithUnits(240, secondUnitName));
     CHECK((-c) == NumberWithUnits(-240, secondUnitName));
 
+
     // Test ++ and -- prefix and suffix
     CHECK((c++) == NumberWithUnits(241,secondUnitName));
     CHECK((c--) == NumberWithUnits(240,secondUnitName));

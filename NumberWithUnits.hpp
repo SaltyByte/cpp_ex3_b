@@ -9,24 +9,14 @@
 #include <tuple>
 
 namespace ariel {
-    static std::map <std::string, std::tuple<std::string, double>> unitsAvailable;
     static std::set <std::string> validUnits;
+    static std::map <std::string, std::tuple<std::string, double>> unitsAvailable;
     class NumberWithUnits {
     private:
         double num_;
         std::string str_;
     public:
-        NumberWithUnits(double num, const std::string &str) {
-            // todo check why set is empty!
-//            if (validUnits.empty()) {
-//                std::cout << "set is empty!" << std::endl;
-//            }
-//            if (!(validUnits.find(str) != validUnits.end())) {
-//                throw std::runtime_error("Can not find the unit requested");
-//            }
-            num_ = num;
-            str_ = str;
-        }
+        NumberWithUnits(double num, const std::string &str);
 
         static void read_units(std::ifstream &file);
 
@@ -39,61 +29,61 @@ namespace ariel {
         //<<<<<<<================== istream end   ==================>>>>>>>
 
         //<<<<<<<================== -/-- start ==================>>>>>>>
-        friend NumberWithUnits operator-(const NumberWithUnits &unit1, const NumberWithUnits &unit2);
+        NumberWithUnits operator-(const NumberWithUnits &unit);
 
-        friend NumberWithUnits operator-(const NumberWithUnits &unit);
+        NumberWithUnits operator-();
 
-        friend NumberWithUnits operator--(NumberWithUnits &unit, int);
+        NumberWithUnits operator--(int);
 
-        friend NumberWithUnits operator--(NumberWithUnits &unit);
+        NumberWithUnits &operator--();
         //<<<<<<<================== -/-- end   ==================>>>>>>>
 
         //<<<<<<<================== +/++ start ==================>>>>>>>
-        friend NumberWithUnits operator+(const NumberWithUnits &unit1, const NumberWithUnits &unit2);
+        NumberWithUnits operator+(const NumberWithUnits &unit);
 
-        friend NumberWithUnits operator+(const NumberWithUnits &unit);
+        NumberWithUnits operator+();
 
-        friend NumberWithUnits operator++(NumberWithUnits &unit);
+        NumberWithUnits &operator++();
 
-        friend NumberWithUnits operator++(NumberWithUnits &unit, int);
+        NumberWithUnits operator++(int);
         //<<<<<<<================== +/++ end   ==================>>>>>>>
 
         //<<<<<<<================== * start ==================>>>>>>>
-        friend NumberWithUnits operator*(const NumberWithUnits &unit, double val);
+        NumberWithUnits operator*(double val);
 
         friend NumberWithUnits operator*(double val, const NumberWithUnits &unit);
         //<<<<<<<================== * end   ==================>>>>>>>
 
         //<<<<<<<================== += start ==================>>>>>>>
-        friend NumberWithUnits operator+=(NumberWithUnits &unit1, const NumberWithUnits &unit2);
+        NumberWithUnits &operator+=(const NumberWithUnits &unit);
         //<<<<<<<================== += end   ==================>>>>>>>
 
         //<<<<<<<================== -= start ==================>>>>>>>
-        friend NumberWithUnits operator-=(NumberWithUnits &unit1, const NumberWithUnits &unit2);
+        NumberWithUnits &operator-=(const NumberWithUnits &unit);
         //<<<<<<<================== -= end   ==================>>>>>>>
 
         //<<<<<<<================== == start ==================>>>>>>>
-        friend bool operator==(const NumberWithUnits &unit1, const NumberWithUnits &unit2);
+        bool operator==(const NumberWithUnits &unit) const;
         //<<<<<<<================== == end   ==================>>>>>>>
 
         //<<<<<<<================== != start ==================>>>>>>>
-        friend bool operator!=(const NumberWithUnits &unit1, const NumberWithUnits &unit2);
+        bool operator!=(const NumberWithUnits &unit) const;
         //<<<<<<<================== != end   ==================>>>>>>>
 
         //<<<<<<<================== < start ==================>>>>>>>
-        friend bool operator<(const NumberWithUnits &unit1, const NumberWithUnits &unit2);
+        bool operator<(const NumberWithUnits &unit) const;
         //<<<<<<<================== < end   ==================>>>>>>>
 
         //<<<<<<<================== > start ==================>>>>>>>
-        friend bool operator>(const NumberWithUnits &unit1, const NumberWithUnits &unit2);
+        bool operator>(const NumberWithUnits &unit) const;
         //<<<<<<<================== > end   ==================>>>>>>>
 
         //<<<<<<<================== <= start ==================>>>>>>>
-        friend bool operator<=(const NumberWithUnits &unit1, const NumberWithUnits &unit2);
+        bool operator<=(const NumberWithUnits &unit) const;
         //<<<<<<<================== <= end   ==================>>>>>>>
 
         //<<<<<<<================== >= start ==================>>>>>>>
-        friend bool operator>=(const NumberWithUnits &unit1, const NumberWithUnits &unit2);
+        bool operator>=(const NumberWithUnits &unit) const;
         //<<<<<<<================== >= end   ==================>>>>>>>
     };
 }
