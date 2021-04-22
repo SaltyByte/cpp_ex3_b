@@ -13,6 +13,7 @@ namespace ariel {
     static std::map <std::string, std::tuple<std::string, double>> unitsAvailable;
     class NumberWithUnits {
     private:
+        double EPS = 0.000001;
         double num_;
         std::string str_;
 //        double getUnitSize(const std::string &unitLeft, const std::string &unitRight);

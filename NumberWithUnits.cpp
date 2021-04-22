@@ -10,6 +10,7 @@ using namespace std;
 
 
 namespace ariel {
+    // todo fix <= >=
     // Constructor
     NumberWithUnits::NumberWithUnits(double num, const std::string &str) {
         if (validUnits.find(str) == validUnits.end()) {
@@ -175,7 +176,10 @@ namespace ariel {
             throw runtime_error("Wrong type of units, cant operate");
         }
         double temp = sizeOfUnit * unit.num_;
-        return temp == this->num_;
+        if (temp > this->num_) {
+            return temp - this->num_ < EPS;
+        }
+        return  this->num_ - temp < EPS;
     }
 
     bool NumberWithUnits::operator!=(const NumberWithUnits &unit) const {

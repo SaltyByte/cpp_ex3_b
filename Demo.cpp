@@ -8,27 +8,28 @@ using namespace std;
 using namespace ariel;
 
 int main() {
-    ofstream File("units.txt");
-
-    File << "1 km = 1000 m" << endl;
-    File << "1 m = 100 cm" << endl;
-    File << "1 cm = 10 mm" << endl;
-    File << "1 kg = 1000 g" << endl;
-    File << "1 ton = 1000 kg" << endl;
-    File << "1 g = 1000 mg" << endl;
-    File << "1 hour = 60 min" << endl;
-    File << "1 min = 60 sec" << endl;
-    File << "1 EUR = 4.5 ILS" << endl;
-    File << "1 USD = 3.33 ILS ";
-    // Close the file
-    File.close();
-    ifstream units_file{"units.txt"};
+    ofstream myfile;
+    myfile.open ("myTestFile.txt");
+    myfile << "1 km = 1000 m" << endl;
+    myfile << "1 m = 100 cm" << endl;
+    myfile << "1 kg = 1000 g" << endl;
+    myfile << "1 ton = 1000 kg" << endl;
+    myfile << "1 hour = 60 min" << endl;
+    myfile << "1 min = 60 sec" << endl;
+    myfile << "1 day = 24 hour" << endl;
+    myfile << "1 month = 30 day" << endl;
+    myfile << "1 year = 12 month" << endl;
+    myfile.close();
+    ifstream units_file{"myTestFile.txt"};
     NumberWithUnits::read_units(units_file);
 
-    NumberWithUnits ton_1(100,"sec");
-    NumberWithUnits mg_1000000000(1,"hour");
-    cout << ton_1 << endl;
-    cout << NumberWithUnits(60*60,"sec") << endl;
+    NumberWithUnits day(1,"day");
+    NumberWithUnits min(61*24,"min");
+
+
+    if (day == min) {
+        cout << "Good";
+    }
 
   return 0;
 }
