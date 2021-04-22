@@ -10,22 +10,15 @@ using namespace std;
 using namespace ariel;
 
 int main() {
-    ifstream units_file{"filename.txt"};
-    ifstream units_file2{"filename2.txt"};
+    ifstream units_file{"myTestFile.txt"};
     NumberWithUnits::read_units(units_file);
-    NumberWithUnits::read_units(units_file2);
+    NumberWithUnits a(1,"day");
+    NumberWithUnits b(60*24,"min");
 
-    NumberWithUnits temp_input(7, "r_ILS");
-
-
-
-    NumberWithUnits a(7, "r_ILS");
-    NumberWithUnits b(7, "r_ILS");
-    NumberWithUnits c(7, "r_ILS");
-    istringstream iss3{" -16 [r_m]   -7 [r_hour ]  8.8 [r_min ]"};
-    iss3 >> a >> b >> c;
+    boolalpha(cout);
+    cout << (a > b) << endl;
+    cout << (a < b) << endl;
 
 
-
-  return 0;
+    return 0;
 }

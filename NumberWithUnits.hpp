@@ -16,6 +16,7 @@ namespace ariel {
         double EPS = 0.0001;
         double num_;
         std::string str_;
+        double roundFourDigits(double val) const;
 //        double getUnitSize(const std::string &unitLeft, const std::string &unitRight);
 //        double sizeCalc(const std::string &unitLeft, const std::string &unitRight, bool firstTime);
     public:
