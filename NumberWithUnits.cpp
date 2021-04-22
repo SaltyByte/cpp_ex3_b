@@ -3,6 +3,7 @@
 #include <string>
 #include <stdexcept>
 #include <fstream>
+#include <algorithm>
 #include <tuple>
 
 
@@ -95,16 +96,18 @@ namespace ariel {
     }
 
     istream &operator>>(std::istream &is, NumberWithUnits &unit) {
-        string skip;
-        is >> unit.num_;
-        getline(is, skip, '[');
         string str;
-        is >> str;
+        is >> unit.num_;
+        getline(is, str, '[');
+        getline(is, str, ']');
+        str.erase(std::remove(str.begin(), str.end(), ']'), str.end());
+        str.erase(std::remove(str.begin(), str.end(), ' '), str.end());
+
         if (validUnits.find(str) == validUnits.end()) {
             throw std::runtime_error("Can not find the unit requested");
         }
         unit.str_ = str;
-        getline(is, skip, ']');
+
         return is;
     }
 
@@ -121,13 +124,14 @@ namespace ariel {
     }
 
     NumberWithUnits &NumberWithUnits::operator--() {
-        (this->num_)--;
+        this->num_--;
         return *this;
     }
 
     NumberWithUnits NumberWithUnits::operator--(int) {
-        --(this->num_);
-        return *this;
+        NumberWithUnits ret = *this;
+        this->num_--;
+        return ret;
     }
 
     NumberWithUnits NumberWithUnits::operator+(const NumberWithUnits &unit) {
@@ -143,13 +147,14 @@ namespace ariel {
     }
 
     NumberWithUnits &NumberWithUnits::operator++() {
-        (this->num_)++;
+        this->num_++;
         return *this;
     }
 
     NumberWithUnits NumberWithUnits::operator++(int) {
-        ++(this->num_);
-        return *this;
+        NumberWithUnits ret = *this;
+        this->num_++;
+        return ret;
     }
 
     NumberWithUnits NumberWithUnits::operator*(double val) {
@@ -176,10 +181,7 @@ namespace ariel {
             throw runtime_error("Wrong type of units, cant operate");
         }
         double temp = sizeOfUnit * unit.num_;
-        if (temp > this->num_) {
-            return temp - this->num_ < EPS;
-        }
-        return  this->num_ - temp < EPS;
+        return abs(temp - this->num_) < EPS;
     }
 
     bool NumberWithUnits::operator!=(const NumberWithUnits &unit) const {
@@ -224,25 +226,3 @@ namespace ariel {
         return this->num_ >= temp;
     }
 }
-
-//double sizeCalc(const string &unitLeft, const string &unitRight, bool firstTime) {
-//    double retSize = 1;
-//    string unit = unitLeft;
-//    bool endOfMap = false;
-//    while (!endOfMap) {
-//        if (unitRight == unit) {
-//            return retSize;
-//        }
-//        if (unitsAvailable.find(unit) != unitsAvailable.end()) {
-//            if (firstTime) {
-//                retSize /= get<1>(unitsAvailable[unit]);
-//            } else {
-//                retSize *= get<1>(unitsAvailable[unit]);
-//            }
-//            unit = get<0>(unitsAvailable[unit]);
-//        } else {
-//            endOfMap = true;
-//        }
-//    }
-//    return -2;
-//}
