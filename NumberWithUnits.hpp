@@ -15,6 +15,8 @@ namespace ariel {
     private:
         double num_;
         std::string str_;
+//        double getUnitSize(const std::string &unitLeft, const std::string &unitRight);
+//        double sizeCalc(const std::string &unitLeft, const std::string &unitRight, bool firstTime);
     public:
         NumberWithUnits(double num, const std::string &str);
 

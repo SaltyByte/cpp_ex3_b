@@ -12,14 +12,14 @@ using namespace std;
 namespace ariel {
     // Constructor
     NumberWithUnits::NumberWithUnits(double num, const std::string &str) {
-        if (!(validUnits.find(str) != validUnits.end())) {
+        if (validUnits.find(str) == validUnits.end()) {
             throw std::runtime_error("Can not find the unit requested");
         }
         num_ = num;
         str_ = str;
     }
 
-    double sizeCalc(const string &unitLeft, const string &unitRight, bool firstTime) {
+    double sizeCalc(const string &unitLeft, const string &unitRight, int firstTime) {
         double retSize = 1;
         string unit = unitLeft;
         bool endOfMap = false;
@@ -38,13 +38,24 @@ namespace ariel {
                 endOfMap = true;
             }
         }
-        return -1;
+        return -2;
     }
+
+//    double findUnit(const string &unitLeft, const string &unitRight) {
+//        double size = 0;
+//        for(auto const& val : unitsAvailable) {
+//            if (unitRight == val.first && get<0>(unitsAvailable[unitLeft]) == get<0>(unitsAvailable[val.first])) {
+//                size = get<1>(unitsAvailable[unitLeft]) + get<1>(unitsAvailable[val.first]);
+//
+//            }
+//        }
+//        return 0;
+//    }
 
     double getUnitSize(const string &unitLeft, const string &unitRight) {
         double sizeOfUnit = sizeCalc(unitLeft, unitRight, true);
-        if (sizeOfUnit == -1) {
-            sizeOfUnit = sizeCalc(unitRight, unitLeft, false);
+        if (sizeOfUnit == -2) {
+            sizeCalc(unitRight, unitLeft, false);
         }
         return sizeOfUnit;
     }
@@ -60,16 +71,30 @@ namespace ariel {
         while (!file.eof()) {
             string firstUnitName;
             string secondUnitName;
+            string skip;
             double secondUnit = 0;
 
-            file.ignore(2) >> firstUnitName;
-            file.ignore(2) >> secondUnit >> secondUnitName;
-            file.ignore(2);
+            getline(file, skip, '1');
+            file >> firstUnitName;
+            if (firstUnitName.empty()) {
+                break;
+            }
+            getline(file, skip, '=');
+            file >> secondUnit >> secondUnitName;
+
             unitsAvailable[firstUnitName] = make_tuple(secondUnitName, secondUnit);
 
             validUnits.insert(firstUnitName);
             validUnits.insert(secondUnitName);
 
+            for (auto const &val : unitsAvailable) {
+                if (get<0>(unitsAvailable[firstUnitName]) == get<0>(unitsAvailable[val.first])
+                  &&get<0>(unitsAvailable[val.first]) != firstUnitName) {
+                    double secondUnitSize = get<1>(unitsAvailable[firstUnitName]) + get<1>(unitsAvailable[val.first]);
+
+                    unitsAvailable[firstUnitName] = make_tuple(val.first, secondUnitSize);
+                }
+            }
         }
         file.clear();
         file.seekg(0);
@@ -81,16 +106,22 @@ namespace ariel {
     }
 
     istream &operator>>(std::istream &is, NumberWithUnits &unit) {
+        string skip;
         is >> unit.num_;
-        is.ignore(2);
-        is >> unit.str_;
-        is.ignore(2);
+        getline(is, skip, '[');
+        string str;
+        is >> str;
+        if (validUnits.find(str) == validUnits.end()) {
+            throw std::runtime_error("Can not find the unit requested");
+        }
+        unit.str_ = str;
+        getline(is, skip, ']');
         return is;
     }
 
     NumberWithUnits NumberWithUnits::operator-(const NumberWithUnits &unit) {
         double sizeOfUnit = getUnitSize(this->str_, unit.str_);
-        if (sizeOfUnit == -1) {
+        if (sizeOfUnit == -2) {
             throw runtime_error("Wrong type of units, cant operate");
         }
         return NumberWithUnits(this->num_ - unit.num_ * sizeOfUnit, this->str_);
@@ -101,18 +132,18 @@ namespace ariel {
     }
 
     NumberWithUnits &NumberWithUnits::operator--() {
-        this->num_--;
+        (this->num_)--;
         return *this;
     }
 
     NumberWithUnits NumberWithUnits::operator--(int) {
-        --this->num_;
+        --(this->num_);
         return *this;
     }
 
     NumberWithUnits NumberWithUnits::operator+(const NumberWithUnits &unit) {
         double sizeOfUnit = getUnitSize(this->str_, unit.str_);
-        if (sizeOfUnit == -1) {
+        if (sizeOfUnit == -2) {
             throw runtime_error("Wrong type of units, cant operate");
         }
         return NumberWithUnits(this->num_ + unit.num_ * sizeOfUnit, this->str_);
@@ -123,12 +154,12 @@ namespace ariel {
     }
 
     NumberWithUnits &NumberWithUnits::operator++() {
-        this->num_++;
+        (this->num_)++;
         return *this;
     }
 
     NumberWithUnits NumberWithUnits::operator++(int) {
-        ++this->num_;
+        ++(this->num_);
         return *this;
     }
 
@@ -152,7 +183,7 @@ namespace ariel {
 
     bool NumberWithUnits::operator==(const NumberWithUnits &unit) const {
         double sizeOfUnit = getUnitSize(this->str_, unit.str_);
-        if (sizeOfUnit == -1) {
+        if (sizeOfUnit == -2) {
             throw runtime_error("Wrong type of units, cant operate");
         }
         double temp = sizeOfUnit * unit.num_;
@@ -165,7 +196,7 @@ namespace ariel {
 
     bool NumberWithUnits::operator<(const NumberWithUnits &unit) const {
         double sizeOfUnit = getUnitSize(this->str_, unit.str_);
-        if (sizeOfUnit == -1) {
+        if (sizeOfUnit == -2) {
             throw runtime_error("Wrong type of units, cant operate");
         }
         double temp = sizeOfUnit * unit.num_;
@@ -175,7 +206,7 @@ namespace ariel {
 
     bool NumberWithUnits::operator>(const NumberWithUnits &unit) const {
         double sizeOfUnit = getUnitSize(this->str_, unit.str_);
-        if (sizeOfUnit == -1) {
+        if (sizeOfUnit == -2) {
             throw runtime_error("Wrong type of units, cant operate");
         }
         double temp = sizeOfUnit * unit.num_;
@@ -185,7 +216,7 @@ namespace ariel {
 
     bool NumberWithUnits::operator<=(const NumberWithUnits &unit) const {
         double sizeOfUnit = getUnitSize(this->str_, unit.str_);
-        if (sizeOfUnit == -1) {
+        if (sizeOfUnit == -2) {
             throw runtime_error("Wrong type of units, cant operate");
         }
         double temp = sizeOfUnit * unit.num_;
@@ -194,10 +225,32 @@ namespace ariel {
 
     bool NumberWithUnits::operator>=(const NumberWithUnits &unit) const {
         double sizeOfUnit = getUnitSize(this->str_, unit.str_);
-        if (sizeOfUnit == -1) {
+        if (sizeOfUnit == -2) {
             throw runtime_error("Wrong type of units, cant operate");
         }
         double temp = sizeOfUnit * unit.num_;
         return this->num_ >= temp;
     }
 }
+
+//double sizeCalc(const string &unitLeft, const string &unitRight, bool firstTime) {
+//    double retSize = 1;
+//    string unit = unitLeft;
+//    bool endOfMap = false;
+//    while (!endOfMap) {
+//        if (unitRight == unit) {
+//            return retSize;
+//        }
+//        if (unitsAvailable.find(unit) != unitsAvailable.end()) {
+//            if (firstTime) {
+//                retSize /= get<1>(unitsAvailable[unit]);
+//            } else {
+//                retSize *= get<1>(unitsAvailable[unit]);
+//            }
+//            unit = get<0>(unitsAvailable[unit]);
+//        } else {
+//            endOfMap = true;
+//        }
+//    }
+//    return -2;
+//}
