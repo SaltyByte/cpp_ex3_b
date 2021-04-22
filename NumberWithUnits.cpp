@@ -41,21 +41,10 @@ namespace ariel {
         return -2;
     }
 
-//    double findUnit(const string &unitLeft, const string &unitRight) {
-//        double size = 0;
-//        for(auto const& val : unitsAvailable) {
-//            if (unitRight == val.first && get<0>(unitsAvailable[unitLeft]) == get<0>(unitsAvailable[val.first])) {
-//                size = get<1>(unitsAvailable[unitLeft]) + get<1>(unitsAvailable[val.first]);
-//
-//            }
-//        }
-//        return 0;
-//    }
-
     double getUnitSize(const string &unitLeft, const string &unitRight) {
         double sizeOfUnit = sizeCalc(unitLeft, unitRight, true);
         if (sizeOfUnit == -2) {
-            sizeCalc(unitRight, unitLeft, false);
+            sizeOfUnit = sizeCalc(unitRight, unitLeft, false);
         }
         return sizeOfUnit;
     }
@@ -89,10 +78,9 @@ namespace ariel {
 
             for (auto const &val : unitsAvailable) {
                 if (get<0>(unitsAvailable[firstUnitName]) == get<0>(unitsAvailable[val.first])
-                  &&get<0>(unitsAvailable[val.first]) != firstUnitName) {
-                    double secondUnitSize = get<1>(unitsAvailable[firstUnitName]) + get<1>(unitsAvailable[val.first]);
-
-                    unitsAvailable[firstUnitName] = make_tuple(val.first, secondUnitSize);
+                    && val.first != firstUnitName) {
+                    double leftUnitSize = get<1>(val.second) / secondUnit;
+                    unitsAvailable[val.first] = make_tuple(firstUnitName, leftUnitSize);
                 }
             }
         }
