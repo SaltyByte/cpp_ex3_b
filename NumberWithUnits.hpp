@@ -9,16 +9,16 @@
 #include <tuple>
 
 namespace ariel {
-    static std::set <std::string> validUnits;
-    static std::map <std::string, std::tuple<std::string, double>> unitsAvailable;
     class NumberWithUnits {
     private:
-        double EPS = 0.0001;
+        static std::set <std::string> validUnits;
+        static std::map <std::string, std::tuple<std::string, double>> unitsAvailable;
+        double EPS = 0.00001;
         double num_;
         std::string str_;
         double roundFourDigits(double val) const;
-//        double getUnitSize(const std::string &unitLeft, const std::string &unitRight);
-//        double sizeCalc(const std::string &unitLeft, const std::string &unitRight, bool firstTime);
+        double getUnitSize(const std::string &unitLeft, const std::string &unitRight);
+        double sizeCalc(const std::string &unitLeft, const std::string &unitRight, bool firstTime);
     public:
         NumberWithUnits(double num, const std::string &str);
 

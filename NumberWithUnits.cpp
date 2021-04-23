@@ -22,10 +22,10 @@ namespace ariel {
     }
 
     double NumberWithUnits::roundFourDigits(double val) const{
-        return round(val * 10000) / 10000;
+        return round(val * 1000000) / 1000000;
     }
 
-    double sizeCalc(const string &unitLeft, const string &unitRight, int firstTime) {
+    double NumberWithUnits::sizeCalc(const string &unitLeft, const string &unitRight, bool firstTime) {
         double retSize = 1;
         string unit = unitLeft;
         bool endOfMap = false;
@@ -34,7 +34,7 @@ namespace ariel {
                 return retSize;
             }
             if (unitsAvailable.find(unit) != unitsAvailable.end()) {
-                if (firstTime != 0) {
+                if (firstTime) {
                     retSize /= get<1>(unitsAvailable[unit]);
                 } else {
                     retSize *= get<1>(unitsAvailable[unit]);
@@ -47,10 +47,10 @@ namespace ariel {
         return -2;
     }
 
-    double getUnitSize(const string &unitLeft, const string &unitRight) {
-        double sizeOfUnit = sizeCalc(unitLeft, unitRight, 1);
+    double NumberWithUnits::getUnitSize(const string &unitLeft, const string &unitRight) {
+        double sizeOfUnit = sizeCalc(unitLeft, unitRight, true);
         if (sizeOfUnit == -2) {
-            sizeOfUnit = sizeCalc(unitRight, unitLeft, 0);
+            sizeOfUnit = sizeCalc(unitRight, unitLeft, false);
         }
         return sizeOfUnit;
     }
@@ -107,7 +107,7 @@ namespace ariel {
         str.erase(std::remove(str.begin(), str.end(), ']'), str.end());
         str.erase(std::remove(str.begin(), str.end(), ' '), str.end());
 
-        if (validUnits.find(str) == validUnits.end()) {
+        if (NumberWithUnits::validUnits.find(str) == NumberWithUnits::validUnits.end()) {
             throw std::runtime_error("Can not find the unit requested");
         }
         unit.str_ = str;
