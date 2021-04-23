@@ -2,8 +2,6 @@
 #include <fstream>
 #include <sstream>
 #include <stdexcept>
-#include <cmath>
-#include <float.h>
 using namespace std;
 
 #include "NumberWithUnits.hpp"

@@ -13,7 +13,6 @@ namespace ariel {
     private:
         static std::set <std::string> validUnits;
         static std::map <std::string, std::tuple<std::string, double>> unitsAvailable;
-        static double roundByNineDigits(double val);
         static double getUnitSize(const std::string &unitLeft, const std::string &unitRight);
         static double sizeCalc(const std::string &unitLeft, const std::string &unitRight, bool firstTime);
 

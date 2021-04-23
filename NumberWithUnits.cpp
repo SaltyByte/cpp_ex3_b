@@ -5,8 +5,6 @@
 #include <fstream>
 #include <algorithm>
 #include <tuple>
-#include <cmath>
-
 
 
 using namespace std;
@@ -14,8 +12,8 @@ using namespace std;
 
 namespace ariel {
     double const EPS = 0.00001;
-    set <string> NumberWithUnits::validUnits;
-    map <string, tuple<string, double>> NumberWithUnits::unitsAvailable;
+    set<string> NumberWithUnits::validUnits;
+    map<string, tuple<string, double>> NumberWithUnits::unitsAvailable;
 
     // Constructor
     NumberWithUnits::NumberWithUnits(double num, const std::string &str) {
@@ -25,13 +23,8 @@ namespace ariel {
         num_ = num;
         str_ = str;
     }
-    // rounding by 9 digits
-    double NumberWithUnits::roundByNineDigits(double val){
-        int const roundBy = 1000000000;
-        return round(val * roundBy) / roundBy;
-    }
 
-     double NumberWithUnits::sizeCalc(const string &unitLeft, const string &unitRight, bool firstTime) {
+    double NumberWithUnits::sizeCalc(const string &unitLeft, const string &unitRight, bool firstTime) {
         double retSize = 1;
         string unit = unitLeft;
         bool endOfMap = false;
@@ -203,9 +196,13 @@ namespace ariel {
             throw runtime_error("Wrong type of units, cant operate");
         }
         double temp = sizeOfUnit * unit.num_;
-        temp = roundByNineDigits(temp);
+        //temp = roundByNineDigits(temp);
+        //return this->num_ < temp;
+        double temp2 = abs(this->num_ - temp);
+        if (temp2 < EPS) {
+            return false;
+        }
         return this->num_ < temp;
-
     }
 
     bool NumberWithUnits::operator>(const NumberWithUnits &unit) const {
@@ -214,9 +211,12 @@ namespace ariel {
             throw runtime_error("Wrong type of units, cant operate");
         }
         double temp = sizeOfUnit * unit.num_;
-        temp = roundByNineDigits(temp);
-        return this->num_ > temp;
 
+        double temp2 = abs(this->num_ - temp);
+        if (temp2 < EPS) {
+            return false;
+        }
+        return this->num_ > temp;
     }
 
     bool NumberWithUnits::operator<=(const NumberWithUnits &unit) const {
@@ -225,7 +225,10 @@ namespace ariel {
             throw runtime_error("Wrong type of units, cant operate");
         }
         double temp = sizeOfUnit * unit.num_;
-        temp = roundByNineDigits(temp);
+        double temp2 = abs(this->num_ - temp);
+        if (temp2 < EPS) {
+            return true;
+        }
         return this->num_ <= temp;
     }
 
@@ -235,7 +238,10 @@ namespace ariel {
             throw runtime_error("Wrong type of units, cant operate");
         }
         double temp = sizeOfUnit * unit.num_;
-        temp = roundByNineDigits(temp);
+        double temp2 = abs(this->num_ - temp);
+        if (temp2 < EPS) {
+            return true;
+        }
         return this->num_ >= temp;
     }
 }
