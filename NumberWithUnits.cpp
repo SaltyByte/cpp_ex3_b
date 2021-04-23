@@ -8,10 +8,15 @@
 #include <cmath>
 
 
+
 using namespace std;
 
 
 namespace ariel {
+    double const EPS = 0.00001;
+    set <string> NumberWithUnits::validUnits;
+    map <string, tuple<string, double>> NumberWithUnits::unitsAvailable;
+
     // Constructor
     NumberWithUnits::NumberWithUnits(double num, const std::string &str) {
         if (validUnits.find(str) == validUnits.end()) {
@@ -20,12 +25,13 @@ namespace ariel {
         num_ = num;
         str_ = str;
     }
-
-    double NumberWithUnits::roundFourDigits(double val) const{
-        return round(val * 1000000) / 1000000;
+    // rounding by 9 digits
+    double NumberWithUnits::roundByNineDigits(double val){
+        int const roundBy = 1000000000;
+        return round(val * roundBy) / roundBy;
     }
 
-    double NumberWithUnits::sizeCalc(const string &unitLeft, const string &unitRight, bool firstTime) {
+     double NumberWithUnits::sizeCalc(const string &unitLeft, const string &unitRight, bool firstTime) {
         double retSize = 1;
         string unit = unitLeft;
         bool endOfMap = false;
@@ -78,7 +84,6 @@ namespace ariel {
             file >> secondUnit >> secondUnitName;
 
             unitsAvailable[firstUnitName] = make_tuple(secondUnitName, secondUnit);
-
             validUnits.insert(firstUnitName);
             validUnits.insert(secondUnitName);
 
@@ -198,7 +203,7 @@ namespace ariel {
             throw runtime_error("Wrong type of units, cant operate");
         }
         double temp = sizeOfUnit * unit.num_;
-        temp = roundFourDigits(temp);
+        temp = roundByNineDigits(temp);
         return this->num_ < temp;
 
     }
@@ -209,7 +214,7 @@ namespace ariel {
             throw runtime_error("Wrong type of units, cant operate");
         }
         double temp = sizeOfUnit * unit.num_;
-        temp = roundFourDigits(temp);
+        temp = roundByNineDigits(temp);
         return this->num_ > temp;
 
     }
@@ -220,7 +225,7 @@ namespace ariel {
             throw runtime_error("Wrong type of units, cant operate");
         }
         double temp = sizeOfUnit * unit.num_;
-        temp = roundFourDigits(temp);
+        temp = roundByNineDigits(temp);
         return this->num_ <= temp;
     }
 
@@ -230,7 +235,7 @@ namespace ariel {
             throw runtime_error("Wrong type of units, cant operate");
         }
         double temp = sizeOfUnit * unit.num_;
-        temp = roundFourDigits(temp);
+        temp = roundByNineDigits(temp);
         return this->num_ >= temp;
     }
 }

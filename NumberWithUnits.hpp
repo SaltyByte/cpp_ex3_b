@@ -13,15 +13,14 @@ namespace ariel {
     private:
         static std::set <std::string> validUnits;
         static std::map <std::string, std::tuple<std::string, double>> unitsAvailable;
-        double EPS = 0.00001;
+        static double roundByNineDigits(double val);
+        static double getUnitSize(const std::string &unitLeft, const std::string &unitRight);
+        static double sizeCalc(const std::string &unitLeft, const std::string &unitRight, bool firstTime);
+
         double num_;
         std::string str_;
-        double roundFourDigits(double val) const;
-        double getUnitSize(const std::string &unitLeft, const std::string &unitRight);
-        double sizeCalc(const std::string &unitLeft, const std::string &unitRight, bool firstTime);
     public:
         NumberWithUnits(double num, const std::string &str);
-
         static void read_units(std::ifstream &file);
 
         //<<<<<<<================== ostream start ==================>>>>>>>
