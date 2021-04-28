@@ -4,7 +4,6 @@
 #include <stdexcept>
 #include <fstream>
 #include <algorithm>
-#include <tuple>
 
 
 using namespace std;
@@ -12,52 +11,37 @@ using namespace std;
 
 namespace ariel {
     double const EPS = 0.00001;
-    set<string> NumberWithUnits::validUnits;
-    map<string, tuple<string, double>> NumberWithUnits::unitsAvailable;
+    map <string, map<string, double>> NumberWithUnits::unitsAvailable;
 
     // Constructor
     NumberWithUnits::NumberWithUnits(double num, const std::string &str) {
-        if (validUnits.find(str) == validUnits.end()) {
-            throw std::runtime_error("Can not find the unit requested");
+        if (unitsAvailable.find(str) == unitsAvailable.end()) {
+            throw runtime_error("Can not find the unit requested");
         }
         num_ = num;
         str_ = str;
     }
-
-    double NumberWithUnits::sizeCalc(const string &unitLeft, const string &unitRight, bool firstTime) {
-        double retSize = 1;
-        string unit = unitLeft;
-        bool endOfMap = false;
-        while (!endOfMap) {
-            if (unitRight == unit) {
-                return retSize;
-            }
-            if (unitsAvailable.find(unit) != unitsAvailable.end()) {
-                if (firstTime) {
-                    retSize /= get<1>(unitsAvailable[unit]);
-                } else {
-                    retSize *= get<1>(unitsAvailable[unit]);
-                }
-                unit = get<0>(unitsAvailable[unit]);
-            } else {
-                endOfMap = true;
-            }
-        }
-        return -2;
+    // just checks if can operate on given units
+    bool NumberWithUnits::checkUnits(const NumberWithUnits &unit1, const NumberWithUnits &unit2) { // map is double sided
+        return unitsAvailable[unit1.str_].find(unit2.str_) == unitsAvailable[unit1.str_].end();    // so we can check only one side
     }
 
-    double NumberWithUnits::getUnitSize(const string &unitLeft, const string &unitRight) {
-        double sizeOfUnit = sizeCalc(unitLeft, unitRight, true);
-        if (sizeOfUnit == -2) {
-            sizeOfUnit = sizeCalc(unitRight, unitLeft, false);
+    // this function updates the units with new units every time inserting new units
+    void NumberWithUnits::updateUnits(const string &unit1, const string &unit2) {
+        for (auto &map : unitsAvailable[unit2]) { // iterate second map
+            if (unitsAvailable[unit1].find(map.first) == unitsAvailable[unit1].end()) {
+                double unitSize = unitsAvailable[unit1][unit2]; // take old ratio
+                double newUnitSize = unitSize * map.second; // unit x second ratio, measures the new ratio.
+                unitsAvailable[unit1][map.first] = newUnitSize; // update ratio
+                unitsAvailable[map.first][unit1] = 1 / newUnitSize;
+            }
         }
-        return sizeOfUnit;
     }
 
 
     void NumberWithUnits::read_units(ifstream &file) {
         if (file.fail() || file.bad()) {
-            throw std::runtime_error("Error in opening file");
+            throw runtime_error("Error in opening file");
         }
         file.clear();
         file.seekg(0);
@@ -70,23 +54,19 @@ namespace ariel {
 
             getline(file, skip, '1');
             file >> firstUnitName;
-            if (firstUnitName.empty()) {
+            if (firstUnitName.empty()) { // check if string is empty
                 break;
             }
             getline(file, skip, '=');
             file >> secondUnit >> secondUnitName;
 
-            unitsAvailable[firstUnitName] = make_tuple(secondUnitName, secondUnit);
-            validUnits.insert(firstUnitName);
-            validUnits.insert(secondUnitName);
+            // update map with units
+            unitsAvailable[firstUnitName][secondUnitName] = secondUnit;
+            unitsAvailable[secondUnitName][firstUnitName] = 1 / secondUnit;
 
-            for (auto const &val : unitsAvailable) {
-                if (get<0>(unitsAvailable[firstUnitName]) == get<0>(unitsAvailable[val.first])
-                    && val.first != firstUnitName) {
-                    double leftUnitSize = get<1>(val.second) / secondUnit;
-                    unitsAvailable[val.first] = make_tuple(firstUnitName, leftUnitSize);
-                }
-            }
+            // update map with new units and ratios
+            updateUnits(firstUnitName, secondUnitName);
+            updateUnits(secondUnitName, firstUnitName);
         }
         file.clear();
         file.seekg(0);
@@ -100,24 +80,22 @@ namespace ariel {
     istream &operator>>(std::istream &is, NumberWithUnits &unit) {
         string str;
         is >> unit.num_;
-        getline(is, str, '[');
-        getline(is, str, ']');
-        str.erase(std::remove(str.begin(), str.end(), ']'), str.end());
-        str.erase(std::remove(str.begin(), str.end(), ' '), str.end());
-
-        if (NumberWithUnits::validUnits.find(str) == NumberWithUnits::validUnits.end()) {
-            throw std::runtime_error("Can not find the unit requested");
+        getline(is, str, ']'); // take like till we get to ] and skip him
+        str.erase(remove(str.begin(), str.end(), '['), str.end()); // erase all '['
+        str.erase(remove(str.begin(), str.end(), ' '), str.end()); // erase all ' '
+                                                                             // leaves up with only the unit
+        if (NumberWithUnits::unitsAvailable.find(str) == NumberWithUnits::unitsAvailable.end()) {
+            throw runtime_error("Can not find the unit requested");
         }
         unit.str_ = str;
-
         return is;
     }
 
     NumberWithUnits NumberWithUnits::operator-(const NumberWithUnits &unit) {
-        double sizeOfUnit = getUnitSize(this->str_, unit.str_);
-        if (sizeOfUnit == -2) {
+        if (checkUnits(*this, unit)) {
             throw runtime_error("Wrong type of units, cant operate");
         }
+        double sizeOfUnit = unitsAvailable[unit.str_][this->str_];
         return NumberWithUnits(this->num_ - unit.num_ * sizeOfUnit, this->str_);
     }
 
@@ -137,10 +115,10 @@ namespace ariel {
     }
 
     NumberWithUnits NumberWithUnits::operator+(const NumberWithUnits &unit) {
-        double sizeOfUnit = getUnitSize(this->str_, unit.str_);
-        if (sizeOfUnit == -2) {
+        if (checkUnits(*this, unit)) {
             throw runtime_error("Wrong type of units, cant operate");
         }
+        double sizeOfUnit = unitsAvailable[unit.str_][this->str_];
         return NumberWithUnits(this->num_ + unit.num_ * sizeOfUnit, this->str_);
     }
 
@@ -178,12 +156,12 @@ namespace ariel {
     }
 
     bool NumberWithUnits::operator==(const NumberWithUnits &unit) const {
-        double sizeOfUnit = getUnitSize(this->str_, unit.str_);
-        if (sizeOfUnit == -2) {
+        if (checkUnits(*this, unit)) {
             throw runtime_error("Wrong type of units, cant operate");
         }
-        double temp = sizeOfUnit * unit.num_;
-        return abs(temp - this->num_) < EPS;
+        double sizeOfUnit = unitsAvailable[unit.str_][this->str_];
+        double temp1 = sizeOfUnit * unit.num_;
+        return abs(temp1 - this->num_) < EPS;
     }
 
     bool NumberWithUnits::operator!=(const NumberWithUnits &unit) const {
@@ -191,57 +169,54 @@ namespace ariel {
     }
 
     bool NumberWithUnits::operator<(const NumberWithUnits &unit) const {
-        double sizeOfUnit = getUnitSize(this->str_, unit.str_);
-        if (sizeOfUnit == -2) {
+        if (checkUnits(*this, unit)) {
             throw runtime_error("Wrong type of units, cant operate");
         }
-        double temp = sizeOfUnit * unit.num_;
-        //temp = roundByNineDigits(temp);
-        //return this->num_ < temp;
-        double temp2 = abs(this->num_ - temp);
+        double sizeOfUnit = unitsAvailable[unit.str_][this->str_];
+        double temp1 = sizeOfUnit * unit.num_;
+        double temp2 = abs(this->num_ - temp1);
         if (temp2 < EPS) {
             return false;
         }
-        return this->num_ < temp;
+        return this->num_ < temp1;
     }
 
     bool NumberWithUnits::operator>(const NumberWithUnits &unit) const {
-        double sizeOfUnit = getUnitSize(this->str_, unit.str_);
-        if (sizeOfUnit == -2) {
+        if (checkUnits(*this, unit)) {
             throw runtime_error("Wrong type of units, cant operate");
         }
-        double temp = sizeOfUnit * unit.num_;
-
-        double temp2 = abs(this->num_ - temp);
+        double sizeOfUnit = unitsAvailable[unit.str_][this->str_];
+        double temp1 = sizeOfUnit * unit.num_;
+        double temp2 = abs(this->num_ - temp1);
         if (temp2 < EPS) {
             return false;
         }
-        return this->num_ > temp;
+        return this->num_ > temp1;
     }
 
     bool NumberWithUnits::operator<=(const NumberWithUnits &unit) const {
-        double sizeOfUnit = getUnitSize(this->str_, unit.str_);
-        if (sizeOfUnit == -2) {
+        if (checkUnits(*this, unit)) {
             throw runtime_error("Wrong type of units, cant operate");
         }
-        double temp = sizeOfUnit * unit.num_;
-        double temp2 = abs(this->num_ - temp);
+        double sizeOfUnit = unitsAvailable[unit.str_][this->str_];
+        double temp1 = sizeOfUnit * unit.num_;
+        double temp2 = abs(this->num_ - temp1);
         if (temp2 < EPS) {
             return true;
         }
-        return this->num_ <= temp;
+        return this->num_ <= temp1;
     }
 
     bool NumberWithUnits::operator>=(const NumberWithUnits &unit) const {
-        double sizeOfUnit = getUnitSize(this->str_, unit.str_);
-        if (sizeOfUnit == -2) {
+        if (checkUnits(*this, unit)) {
             throw runtime_error("Wrong type of units, cant operate");
         }
-        double temp = sizeOfUnit * unit.num_;
-        double temp2 = abs(this->num_ - temp);
+        double sizeOfUnit = unitsAvailable[unit.str_][this->str_];
+        double temp1 = sizeOfUnit * unit.num_;
+        double temp2 = abs(this->num_ - temp1);
         if (temp2 < EPS) {
             return true;
         }
-        return this->num_ >= temp;
+        return this->num_ >= temp1;
     }
 }

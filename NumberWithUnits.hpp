@@ -5,21 +5,23 @@
 #include <iostream>
 #include <stdexcept>
 #include <map>
-#include <set>
-#include <tuple>
 
 namespace ariel {
     class NumberWithUnits {
     private:
-        static std::set <std::string> validUnits;
-        static std::map <std::string, std::tuple<std::string, double>> unitsAvailable;
-        static double getUnitSize(const std::string &unitLeft, const std::string &unitRight);
-        static double sizeCalc(const std::string &unitLeft, const std::string &unitRight, bool firstTime);
-
+        // static map
+        static std::map <std::string, std::map<std::string, double>> unitsAvailable;
+        // static functions
+        static void updateUnits(const std::string&, const std::string&);
+        static bool checkUnits(const NumberWithUnits&, const NumberWithUnits&);
+        // private variables
         double num_;
         std::string str_;
+
     public:
+        // constructor
         NumberWithUnits(double num, const std::string &str);
+        // units read
         static void read_units(std::ifstream &file);
 
         //<<<<<<<================== ostream start ==================>>>>>>>
@@ -32,27 +34,20 @@ namespace ariel {
 
         //<<<<<<<================== -/-- start ==================>>>>>>>
         NumberWithUnits operator-(const NumberWithUnits &unit);
-
         NumberWithUnits operator-();
-
         NumberWithUnits operator--(int);
-
         NumberWithUnits &operator--();
         //<<<<<<<================== -/-- end   ==================>>>>>>>
 
         //<<<<<<<================== +/++ start ==================>>>>>>>
         NumberWithUnits operator+(const NumberWithUnits &unit);
-
         NumberWithUnits operator+();
-
         NumberWithUnits &operator++();
-
         NumberWithUnits operator++(int);
         //<<<<<<<================== +/++ end   ==================>>>>>>>
 
         //<<<<<<<================== * start ==================>>>>>>>
         NumberWithUnits operator*(double val);
-
         friend NumberWithUnits operator*(double val, const NumberWithUnits &unit);
         //<<<<<<<================== * end   ==================>>>>>>>
 
@@ -87,6 +82,7 @@ namespace ariel {
         //<<<<<<<================== >= start ==================>>>>>>>
         bool operator>=(const NumberWithUnits &unit) const;
         //<<<<<<<================== >= end   ==================>>>>>>>
+
     };
 }
 #endif
